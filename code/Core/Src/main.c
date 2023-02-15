@@ -48,6 +48,7 @@ UART_HandleTypeDef huart2;
 //uint16_t adcRawData[20];
 double tempLog = 0;
 double voltageLog = 0;
+double voltageAvg = 0;
 
 typedef union //อนุญาตให้เก็บข้อมูลได้หลายแบบในตัวแปรเดียว เช่น int float
 {
@@ -217,7 +218,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -338,6 +339,8 @@ static void MX_GPIO_Init(void)
 	// this function still call after ADC-DMA Finish
 //}
 void calculation(){
+	voltageLog = 0;
+	tempLog = 0;
 	register int i = 0;
 	for (i = 0; i < 10; i++) {
 	voltageLog = voltageLog + buffer[i].subData.ADC_IN0;
