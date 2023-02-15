@@ -46,6 +46,20 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint16_t adcRawData[20];
+uint16_t tempLog = 0;
+uint16_t voltageLog = 0;
+
+typedef union //อนุญาตให้เก็บข้อมูลได้หลายแบบในตัวแปรเดียว เช่น int float
+{
+	struct
+	{
+		uint16_t ADC_IN0; //voltage
+		uint16_t TempSensor; //temp
+	}subData;
+	uint16_t buffer[2]; //adc n temp sensor
+}DMA_ADC_BufferType;
+
+DMA_ADC_BufferType buffer[10]; //adc = 10, tempsensor = 10
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,7 +69,7 @@ static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
-
+void calculation();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -95,7 +109,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)buffer, 20); // 20 ค่า
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,6 +119,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  	  calculation();
   }
   /* USER CODE END 3 */
 }
@@ -194,9 +209,9 @@ static void MX_ADC1_Init(void)
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
-  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+  sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -204,6 +219,7 @@ static void MX_ADC1_Init(void)
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
+  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
   sConfig.Rank = 2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -302,15 +318,26 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) { //เลือกทำ function นี้แทน weak (ถูก implement ไว้ใน Library)
-	if(GPIO_Pin == GPIO_PIN_13)
-	{
-		HAL_ADC_Start_DMA(&hadc1, adcRawData, 20);
+//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) { //เลือกทำ function นี้แทน weak (ถูก implement ไว้ใน Library)
+//	if(GPIO_Pin == GPIO_PIN_13) //interrupt function
+//	{
+////		HAL_ADC_Start_DMA(&hadc1, adcRawData, 20);
+//		HAL_ADC_Start_DMA(&hadc1,(uint32_t*)buffer, 20); // 20 ค่า
+//		// Buffer size 100*2
+//	}
+//
+//}
+//void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+	//adcRawData = HAL_ADC_GetValue(&hadc1);
+	// this function still call after ADC-DMA Finish
+//}
+void calculation(){
+	register int i = 0;
+	for (i = 0; i < 10; i++) {
+	voltageLog = voltageLog + buffer[i].subData.ADC_IN0;
+	tempLog = tempLog + buffer[i].subData.TempSensor;
 	}
 
-}
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-	//adcRawData = HAL_ADC_GetValue(&hadc1);
 }
 /* USER CODE END 4 */
 
