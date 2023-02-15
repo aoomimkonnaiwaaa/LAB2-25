@@ -119,7 +119,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  	  calculation();
+	  static uint32_t timestamp = 0;
+	 	  if(HAL_GetTick() >= timestamp)
+	 	      {
+	 	          timestamp = HAL_GetTick() + 1000; // call every 1 Hz
+	 	      }
+	  calculation();
   }
   /* USER CODE END 3 */
 }
@@ -337,7 +342,8 @@ void calculation(){
 	voltageLog = voltageLog + buffer[i].subData.ADC_IN0;
 	tempLog = tempLog + buffer[i].subData.TempSensor;
 	}
-
+	voltageLog = voltageLog / 10;
+	voltageLog = (voltageLog * 3.3 * 1200) / 4096;
 }
 /* USER CODE END 4 */
 
