@@ -123,8 +123,9 @@ int main(void)
 	 	  if(HAL_GetTick() >= timestamp)
 	 	      {
 	 	          timestamp = HAL_GetTick() + 1000; // call every 1 Hz
+	 	          calculation();
 	 	      }
-	  calculation();
+
   }
   /* USER CODE END 3 */
 }
@@ -216,7 +217,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -348,8 +349,10 @@ void calculation(){
 	voltageLog = ((voltageLog * 3.3) / 4095) * 1000 * 2; // 0-4095 = 4096
 	// Average of tempLog
 	tempLog = tempLog / 10;
+	// Convert templog to voltage
+	tempLog = (tempLog * 3.3) / 4095;
 	// temp in Celcius = {(Vsense - V25)/Avg_slope}+25 ;
-	tempLog = ((voltageLog - 0.76) / (2.5 / 1000)) + 25;
+	tempLog = ((tempLog - 0.76) / (2.5 / 1000)) + 25;
 	// covert Celcius to Kelvin Degree
 	tempLog = tempLog + 273.15;
 }
