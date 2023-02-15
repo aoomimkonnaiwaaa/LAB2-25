@@ -48,7 +48,6 @@ UART_HandleTypeDef huart2;
 //uint16_t adcRawData[20];
 double tempLog = 0;
 double voltageLog = 0;
-double voltageAvg = 0;
 
 typedef union //อนุญาตให้เก็บข้อมูลได้หลายแบบในตัวแปรเดียว เช่น int float
 {
