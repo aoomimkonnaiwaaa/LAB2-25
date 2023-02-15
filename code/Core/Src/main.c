@@ -45,9 +45,9 @@ DMA_HandleTypeDef hdma_adc1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint16_t adcRawData[20];
-uint16_t tempLog = 0;
-uint16_t voltageLog = 0;
+//uint16_t adcRawData[20];
+double tempLog = 0;
+double voltageLog = 0;
 
 typedef union //อนุญาตให้เก็บข้อมูลได้หลายแบบในตัวแปรเดียว เช่น int float
 {
@@ -342,8 +342,16 @@ void calculation(){
 	voltageLog = voltageLog + buffer[i].subData.ADC_IN0;
 	tempLog = tempLog + buffer[i].subData.TempSensor;
 	}
+	// Average of voltageLog
 	voltageLog = voltageLog / 10;
-	voltageLog = (voltageLog * 3.3 * 1200) / 4096;
+	// convert to mV by gain 1000 -> convert to Vin by gain 2
+	voltageLog = ((voltageLog * 3.3) / 4095) * 1000 * 2; // 0-4095 = 4096
+	// Average of tempLog
+	tempLog = tempLog / 10;
+	// temp in Celcius = {(Vsense - V25)/Avg_slope}+25 ;
+	tempLog = ((voltageLog - 0.76) / (2.5 / 1000)) + 25;
+	// covert Celcius to Kelvin Degree
+	tempLog = tempLog + 273.15;
 }
 /* USER CODE END 4 */
 
