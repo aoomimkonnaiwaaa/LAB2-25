@@ -348,11 +348,11 @@ void calculation(){
 	// Average of voltageLog
 	voltageLog = voltageLog / 10;
 	// convert to mV by gain 1000 -> convert to Vin by gain 2
-	voltageLog = ((voltageLog * 3.3) / 4095) * 1000 * 2; // 0-4095 = 4096
+	voltageLog = ((voltageLog * 3.3) / 4096) * 1000 * 2; // 0-4095 = 4096
 	// Average of tempLog
 	tempLog = tempLog / 10;
 	// Convert templog to voltage
-	tempLog = (tempLog * 3.3) / 4095;
+	tempLog = (tempLog * 3.3) / 4096;
 	// temp in Celcius = {(Vsense - V25)/Avg_slope}+25 ;
 	tempLog = ((tempLog - 0.76) / (2.5 / 1000)) + 25;
 	// covert Celcius to Kelvin Degree
